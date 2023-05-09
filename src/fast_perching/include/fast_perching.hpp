@@ -16,6 +16,7 @@
 #include <Eigen/Core>
 #include <traj_opt/traj_opt.h>
 
+#include "quadrotor_msgs/PositionCommand.h"
 
 namespace ns_fast_perching {
 
@@ -26,6 +27,7 @@ public:
     void runAlgorithm();
     void set_target(geometry_msgs::PoseStamped msg);
     void set_drone_pose(geometry_msgs::PoseStamped msg);
+    quadrotor_msgs::PositionCommand get_next_point();
     // geometry_msgs::PoseStamped get_goal_pose();
     // void update_state(geometry_msgs::PoseStamped msgs);
 
@@ -37,9 +39,7 @@ private:
     std::shared_ptr<traj_opt::TrajOpt> trajOptPtr_;
     std::shared_ptr<vis_utils::VisUtils> visPtr_;
     double velocity_omega;
-    // geometry_msgs::PoseStamped pose;
-    // geometry_msgs::PoseStamped state;
-    // int index;
+    quadrotor_msgs::PositionCommand next_point;
 };
 
 }

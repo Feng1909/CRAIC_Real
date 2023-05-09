@@ -26,6 +26,7 @@ private:
     // ros::Subscriber pose_sub;
     // ros::Subscriber aruco_sub;
 
+    ros::Publisher cmd_pub;
     // ros::Publisher local_pos_pub;
 
     // ros::ServiceClient arming_client;

@@ -38,6 +38,7 @@ void FAST_PERCHING_Handle::subscribeToTopics() {
 }
 
 void FAST_PERCHING_Handle::publishToTopics() {
+    cmd_pub = nodeHandle_.advertise<quadrotor_msgs::PositionCommand>("/cmd", 10);
     // local_pos_pub = nodeHandle_.advertise<geometry_msgs::PoseStamped>("/mavros/setpoint_position/local", 10);
 }
 
@@ -53,7 +54,8 @@ void FAST_PERCHING_Handle::run() {
 
 void FAST_PERCHING_Handle::sendMsg() {
 //     if (!is_land)
-//         local_pos_pub.publish(fast_perching_.get_goal_pose());
+
+    cmd_pub.publish(fast_perching_.get_next_point());
 }
 
 }

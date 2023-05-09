@@ -16,6 +16,10 @@ void FAST_PERCHING::set_drone_pose(geometry_msgs::PoseStamped msg) {
     drone_pose = msg;
 }
 
+quadrotor_msgs::PositionCommand FAST_PERCHING::get_next_point() {
+    return next_point;
+}
+
 
 void FAST_PERCHING::runAlgorithm() {
     double time_duration = (ros::Time::now()-target.header.stamp).toSec();
@@ -58,13 +62,29 @@ void FAST_PERCHING::runAlgorithm() {
     std::cout<<"finish"<<std::endl;
     visPtr_->visualize_traj(traj, "traj");
 
+    double select_time = 0.1;
+    std::cout<<traj.getVel(select_time)<<std::endl;
+    Eigen::Vector3d next_pose = traj.getPos(select_time);
+    Eigen::Vector3d next_vel  = traj.getVel(select_time);
+    Eigen::Vector3d next_acc  = traj.getAcc(select_time);
+    Eigen::Vector3d next_jerk = traj.getJer(select_time);
+    
+    next_point.position.x = next_pose(0);
+    next_point.position.y = next_pose(1);
+    next_point.position.z = next_pose(2);
 
+    next_point.velocity.x = next_vel(0);
+    next_point.velocity.y = next_vel(1);
+    next_point.velocity.z = next_vel(2);
+    
+    next_point.acceleration.x = next_acc(0);
+    next_point.acceleration.y = next_acc(1);
+    next_point.acceleration.z = next_acc(2);
 
-
-
-
-
-
+    next_point.jerk.x = next_jerk(0);
+    next_point.jerk.y = next_jerk(1);
+    next_point.jerk.z = next_jerk(2);
+    
 }
 
 }

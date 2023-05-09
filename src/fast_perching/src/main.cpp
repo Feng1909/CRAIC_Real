@@ -9,7 +9,7 @@ int main(int argc, char **argv){
 
     FAST_PERCHING_Handle myFAST_PERCHING_Handle(nodeHandle);
     
-    ros::Rate loop_rate(5);
+    ros::Rate loop_rate(20);
 
     while(ros::ok()) {
         myFAST_PERCHING_Handle.run();
