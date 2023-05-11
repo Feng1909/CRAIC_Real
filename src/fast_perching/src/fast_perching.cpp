@@ -12,7 +12,7 @@ void FAST_PERCHING::set_target(geometry_msgs::PoseStamped msg) {
     target = msg;
 }
 
-void FAST_PERCHING::set_drone_pose(geometry_msgs::PoseStamped msg) {
+void FAST_PERCHING::set_drone_pose(nav_msgs::Odometry msg) {
     drone_pose = msg;
 }
 
@@ -30,16 +30,18 @@ void FAST_PERCHING::runAlgorithm() {
     Eigen::Vector3d target_p, target_v, perching_axis_;
     Eigen::MatrixXd iniState;
 
-    target_p(0) = target.pose.position.x + 0.7 * cos(degree);
-    target_p(1) = target.pose.position.y + 0.7 * sin(degree);
+    // target_p(0) = target.pose.position.x + 0.7 * cos(degree);
+    // target_p(1) = target.pose.position.y + 0.7 * sin(degree);
+    target_p(0) = target.pose.position.x;
+    target_p(1) = target.pose.position.y;
     target_p(2) = target.pose.position.z;
     target_v(0) = 0.0;
     target_v(1) = 0.0;
     target_v(2) = 0.0;
     iniState.setZero(3, 4);
-    iniState.col(0).x() = drone_pose.pose.position.x;
-    iniState.col(0).y() = drone_pose.pose.position.y;
-    iniState.col(0).z() = drone_pose.pose.position.z;
+    iniState.col(0).x() = drone_pose.pose.pose.position.x;
+    iniState.col(0).y() = drone_pose.pose.pose.position.y;
+    iniState.col(0).z() = drone_pose.pose.pose.position.z;
     perching_axis_.x() = 0.0;
     perching_axis_.y() = 0.0;
     perching_axis_.z() = 0.0;
@@ -58,12 +60,12 @@ void FAST_PERCHING::runAlgorithm() {
     land_q.z() = axis.z() * sin(theta);
     land_q = target_q * land_q;
     bool generate_new_traj_success = false;
+    std::cout<<"init state: "<<iniState<<std::endl;
     generate_new_traj_success = trajOptPtr_->generate_traj(iniState, target_p, target_v, land_q, 10, traj);
     std::cout<<"finish"<<std::endl;
     visPtr_->visualize_traj(traj, "traj");
 
     double select_time = 0.1;
-    std::cout<<traj.getVel(select_time)<<std::endl;
     Eigen::Vector3d next_pose = traj.getPos(select_time);
     Eigen::Vector3d next_vel  = traj.getVel(select_time);
     Eigen::Vector3d next_acc  = traj.getAcc(select_time);

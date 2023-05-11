@@ -5,3 +5,4 @@ devel
 .vscode
 .vscode/*
 test.py
+*.bag

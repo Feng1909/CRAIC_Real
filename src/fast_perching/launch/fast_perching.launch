@@ -3,10 +3,10 @@
     <param name="plan_hz" value="5"/>
 
       <param name="K" value="16"/>
-      <param name="vmax" value="6.0"/>
-      <param name="amax" value="6.0"/>
+      <param name="vmax" value="1.0"/>
+      <param name="amax" value="3.0"/>
 
-      <param name="thrust_max" value="17.0"/>
+      <param name="thrust_max" value="7.0"/>
       <param name="thrust_min" value="5.0"/>
       <param name="omega_max" value="3.0"/>
       <param name="omega_yaw_max" value="0.5"/>

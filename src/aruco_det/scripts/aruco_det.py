@@ -1,8 +1,9 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 #coding=utf-8
 
 import rospy
 from geometry_msgs.msg import PoseStamped, TwistStamped, Point
+from nav_msgs.msg import Odometry
 from sensor_msgs.msg import Image
 from std_msgs.msg import Bool
 from cv_bridge import CvBridge
@@ -11,7 +12,6 @@ import tf
 import sys
 from scipy.optimize import minimize
 import numpy as np
-from pyquaternion import Quaternion
 import time
 from math import atan2, pi
 
@@ -20,9 +20,7 @@ class Algorithm:
     def __init__(self):
         rospy.init_node("arcuo_det")
         self.debug = rospy.get_param('~is_debug')
-        self.state = {'pose': {}, 'ori':{}, 'twist':{}}
-        self.state['pose'] = PoseStamped()
-        self.state['twist'] = TwistStamped()
+        self.state = Odometry()
 
         # for Aruco
         self.bridge = CvBridge()
@@ -39,9 +37,9 @@ class Algorithm:
 
 
         # Subscriber
-        pose_sub = rospy.Subscriber('/mavros/local_position/pose', PoseStamped, self.pose_callback)
-        vel_sub = rospy.Subscriber('/mavros/local_position/velocity_local', TwistStamped, self.vel_callback)
-        camera_sub = rospy.Subscriber('/rflysim/sensor1/img_rgb', Image, self.camera_callback)
+        pose_sub = rospy.Subscriber('/vins_fusion/imu_propagate', Odometry, self.pose_callback)
+        # vel_sub = rospy.Subscriber('/mavros/local_position/velocity_local', TwistStamped, self.vel_callback)
+        # camera_sub = rospy.Subscriber('/rflysim/sensor1/img_rgb', Image, self.camera_callback)
 
         # Publisher 
         self.camera_pub = rospy.Publisher('aruco_det/vis', Image, queue_size=1)
@@ -49,15 +47,13 @@ class Algorithm:
         self.detect_result = rospy.Publisher('aruco_det/target_loc', PoseStamped, queue_size=1)
     
     def pose_callback(self, msg):
-        self.state['pose'] = msg
-
-    def vel_callback(self, msg):
-        self.state['twist'] = msg
+        self.state = msg
     
     def camera_callback(self, msg):
         time_received = rospy.Time.now()
         t_1 = time.time()
-        cv_image = self.bridge.imgmsg_to_cv2(msg, desired_encoding='bgr8')
+        # cv_image = self.bridge.imgmsg_to_cv2(msg, desired_encoding='bgr8')
+        cv_image = msg
         (corners, ids, rejected) = cv2.aruco.detectMarkers(cv_image, self.arucoDict,
             parameters=self.arucoParams)
         if len(corners) > 0:
@@ -72,7 +68,8 @@ class Algorithm:
                 
                 code_matrix = self.quat_to_pos_matrix_hm(tvec[0][0][0], tvec[0][0][1], tvec[0][0][2], 0, 0, 0, 1)
                 camera_matrix = self.quat_to_pos_matrix_hm(0, 0, 0, 0.7071068, -0.7071068, 0, 0)
-                drone_matrix = self.quat_to_pos_matrix_hm(self.state['pose'].pose.position.x, self.state['pose'].pose.position.y, self.state['pose'].pose.position.z, self.state['pose'].pose.orientation.x, self.state['pose'].pose.orientation.y, self.state['pose'].pose.orientation.z, self.state['pose'].pose.orientation.w)
+                # drone_matrix = self.quat_to_pos_matrix_hm(self.state['pose'].pose.position.x, self.state['pose'].pose.position.y, self.state['pose'].pose.position.z, self.state['pose'].pose.orientation.x, self.state['pose'].pose.orientation.y, self.state['pose'].pose.orientation.z, self.state['pose'].pose.orientation.w)
+                drone_matrix = self.quat_to_pos_matrix_hm(self.state.pose.pose.position.x, self.state.pose.pose.position.y, self.state.pose.pose.position.z, self.state.pose.pose.orientation.x, self.state.pose.pose.orientation.y, self.state.pose.pose.orientation.z, self.state.pose.pose.orientation.w)
                 global_matrix = drone_matrix*camera_matrix*code_matrix
                 
                 self.points.append([global_matrix[0,3], global_matrix[1,3], global_matrix[2,3]])
@@ -93,9 +90,12 @@ class Algorithm:
                     
                     target_loc = PoseStamped()
                     target_loc.header.stamp = time_received
-                    target_loc.pose.position.x = circle_center[0]
-                    target_loc.pose.position.y = circle_center[1]
-                    target_loc.pose.position.z = circle_center[2]
+                    # target_loc.pose.position.x = circle_center[0]
+                    # target_loc.pose.position.y = circle_center[1]
+                    # target_loc.pose.position.z = circle_center[2]
+                    target_loc.pose.position.x = global_matrix[0,3]
+                    target_loc.pose.position.y = global_matrix[1,3]
+                    target_loc.pose.position.z = global_matrix[2,3]
                     target_loc.pose.orientation.z = self.degree
                     self.detect_result.publish(target_loc)
                   
@@ -140,5 +140,13 @@ if __name__ == "__main__":
 
     main_algorithm = Algorithm()
     rate = rospy.Rate(20)
+    cap = cv2.VideoCapture(6)
     while not rospy.is_shutdown():
+        retval, frame = cap.read()
+        if retval:
+            # print(retval)
+            # cv2.imshow('Live', frame)
+            main_algorithm.camera_callback(frame)
+        if cv2.waitKey(5) >= 0:
+            break
         rate.sleep()

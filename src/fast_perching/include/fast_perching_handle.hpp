@@ -34,13 +34,13 @@ private:
     
     void aruco_det_state_callback(const std_msgs::Bool::ConstPtr& msg);
     void aruco_det_result_callback(const geometry_msgs::PoseStamped::ConstPtr& msg);
-    void drone_pose_callback(const geometry_msgs::PoseStamped::ConstPtr& msg);
+    void drone_pose_callback(const nav_msgs::Odometry::ConstPtr& msg);
     // void state_cb(const mavros_msgs::State::ConstPtr& msg);
     // void set_pose_callback(const geometry_msgs::PoseStamped::ConstPtr& msg);
     // void aruco_result_callback(const geometry_msgs::PoseStamped::ConstPtr& msg);
 
     geometry_msgs::PoseStamped target_loc;
-    geometry_msgs::PoseStamped drone_pose;
+    nav_msgs::Odometry drone_pose;
     // mavros_msgs::State current_state;
     // mavros_msgs::SetMode offb_set_mode;
     // mavros_msgs::SetMode land_set_mode;

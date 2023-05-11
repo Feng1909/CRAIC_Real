@@ -19,7 +19,7 @@ void FAST_PERCHING_Handle::aruco_det_result_callback(const geometry_msgs::PoseSt
     fast_perching_.set_target(target_loc);
 }
 
-void FAST_PERCHING_Handle::drone_pose_callback(const geometry_msgs::PoseStamped::ConstPtr& msg) {
+void FAST_PERCHING_Handle::drone_pose_callback(const nav_msgs::Odometry::ConstPtr& msg) {
     drone_pose = *msg;
     fast_perching_.set_drone_pose(drone_pose);
 }
@@ -31,7 +31,7 @@ int FAST_PERCHING_Handle::getNodeRate() const {
 void FAST_PERCHING_Handle::subscribeToTopics() {
     detect_state_sub = nodeHandle_.subscribe<std_msgs::Bool>("/aruco_det/state", 10, &FAST_PERCHING_Handle::aruco_det_state_callback, this);
     detect_result_sub = nodeHandle_.subscribe<geometry_msgs::PoseStamped>("/aruco_det/target_loc", 10, &FAST_PERCHING_Handle::aruco_det_result_callback, this);
-    drone_pose_sub = nodeHandle_.subscribe<geometry_msgs::PoseStamped>("/mavros/local_position/pose", 10, &FAST_PERCHING_Handle::drone_pose_callback, this);
+    drone_pose_sub = nodeHandle_.subscribe<nav_msgs::Odometry>("/vins_fusion/imu_propagate", 10, &FAST_PERCHING_Handle::drone_pose_callback, this);
     // state_sub = nodeHandle_.subscribe<mavros_msgs::State>("/mavros/state", 10, &FAST_PERCHING_Handle::state_cb, this);
     // pose_sub = nodeHandle_.subscribe<geometry_msgs::PoseStamped>("/mavros/local_position/pose", 10, &FAST_PERCHING_Handle::set_pose_callback, this);
     // aruco_sub = nodeHandle_.subscribe<geometry_msgs::PoseStamped>("/aruco_det/target_loc", 10, &FAST_PERCHING_Handle::aruco_result_callback, this);
