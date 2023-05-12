@@ -32,9 +32,12 @@ void FAST_PERCHING::runAlgorithm() {
 
     // target_p(0) = target.pose.position.x + 0.7 * cos(degree);
     // target_p(1) = target.pose.position.y + 0.7 * sin(degree);
-    target_p(0) = target.pose.position.x;
-    target_p(1) = target.pose.position.y;
-    target_p(2) = target.pose.position.z;
+    // target_p(0) = target.pose.position.x;
+    // target_p(1) = target.pose.position.y;
+    // target_p(2) = target.pose.position.z;
+    target_p(0) = 0.1;
+    target_p(1) = -0.1;
+    target_p(2) = 0.18;
     target_v(0) = 0.0;
     target_v(1) = 0.0;
     target_v(2) = 0.0;
@@ -61,8 +64,9 @@ void FAST_PERCHING::runAlgorithm() {
     land_q = target_q * land_q;
     bool generate_new_traj_success = false;
     std::cout<<"init state: "<<iniState<<std::endl;
+    std::cout<<"target p: "<<target_p<<std::endl;
     generate_new_traj_success = trajOptPtr_->generate_traj(iniState, target_p, target_v, land_q, 10, traj);
-    std::cout<<"finish"<<std::endl;
+    std::cout<<"time duration: "<<traj.getDurations()<<std::endl;
     visPtr_->visualize_traj(traj, "traj");
 
     double select_time = 0.1;
@@ -71,6 +75,10 @@ void FAST_PERCHING::runAlgorithm() {
     Eigen::Vector3d next_acc  = traj.getAcc(select_time);
     Eigen::Vector3d next_jerk = traj.getJer(select_time);
     
+    next_point.header.stamp = ros::Time::now();
+    next_point.header.frame_id = "world";
+    next_point.trajectory_flag = quadrotor_msgs::PositionCommand::TRAJECTORY_STATUS_READY;
+    next_point.trajectory_id = 0;
     next_point.position.x = next_pose(0);
     next_point.position.y = next_pose(1);
     next_point.position.z = next_pose(2);
@@ -86,6 +94,9 @@ void FAST_PERCHING::runAlgorithm() {
     next_point.jerk.x = next_jerk(0);
     next_point.jerk.y = next_jerk(1);
     next_point.jerk.z = next_jerk(2);
+
+    next_point.yaw = 0;
+    next_point.yaw_dot = 0;
     
 }
 

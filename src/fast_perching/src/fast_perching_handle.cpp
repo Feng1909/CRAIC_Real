@@ -38,7 +38,7 @@ void FAST_PERCHING_Handle::subscribeToTopics() {
 }
 
 void FAST_PERCHING_Handle::publishToTopics() {
-    cmd_pub = nodeHandle_.advertise<quadrotor_msgs::PositionCommand>("/cmd", 10);
+    cmd_pub = nodeHandle_.advertise<quadrotor_msgs::PositionCommand>("/position_cmd", 10);
     // local_pos_pub = nodeHandle_.advertise<geometry_msgs::PoseStamped>("/mavros/setpoint_position/local", 10);
 }
 

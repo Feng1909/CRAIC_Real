@@ -14,6 +14,8 @@ from scipy.optimize import minimize
 import numpy as np
 import time
 from math import atan2, pi
+from mavros_msgs.srv import CommandBool, CommandBoolRequest, SetMode, SetModeRequest
+from quadrotor_msgs.msg import TakeoffLand
 
 class Algorithm:
     
@@ -35,11 +37,20 @@ class Algorithm:
         self.time_stamp = rospy.Time.now().to_sec()
         self.degree = -100
 
+        self.set_mode_client = rospy.ServiceProxy("mavros/set_mode", SetMode)
+        self.land_set_mode = SetModeRequest()
+        self.land_set_mode.custom_mode = 'AUTO.LAND'
+
+
+        self.arming_client = rospy.ServiceProxy("mavros/cmd/arming", CommandBool)  
+        self.dis_arm_cmd = CommandBoolRequest()
+        self.dis_arm_cmd.value = False
+
+        self.takeoff_land = rospy.Publisher('/px4ctrl/takeoff_land', TakeoffLand)
+
 
         # Subscriber
         pose_sub = rospy.Subscriber('/vins_fusion/imu_propagate', Odometry, self.pose_callback)
-        # vel_sub = rospy.Subscriber('/mavros/local_position/velocity_local', TwistStamped, self.vel_callback)
-        # camera_sub = rospy.Subscriber('/rflysim/sensor1/img_rgb', Image, self.camera_callback)
 
         # Publisher 
         self.camera_pub = rospy.Publisher('aruco_det/vis', Image, queue_size=1)
@@ -52,14 +63,31 @@ class Algorithm:
     def camera_callback(self, msg):
         time_received = rospy.Time.now()
         t_1 = time.time()
-        # cv_image = self.bridge.imgmsg_to_cv2(msg, desired_encoding='bgr8')
         cv_image = msg
         (corners, ids, rejected) = cv2.aruco.detectMarkers(cv_image, self.arucoDict,
             parameters=self.arucoParams)
         if len(corners) > 0:
+            print('detected')
+            if(self.set_mode_client.call(self.land_set_mode).mode_sent == True):
+                rospy.loginfo("land enabled")
+            if(self.arming_client.call(self.dis_arm_cmd).success == True):
+                rospy.loginfo("Vehicle disarmed")
+            land = TakeoffLand()
+            land.takeoff_land_cmd = 2
+            self.takeoff_land.publish(land)
+            print('ids: ', ids)
+            if ids[0][0] == 19:
+                length = 0.188
+            else:
+                length = 0.0186
             self.detect_state_pub.publish(True)
             draw_det_marker_img = cv2.aruco.drawDetectedMarkers(cv_image, corners, ids)
-            rvec, tvec, _ = cv2.aruco.estimatePoseSingleMarkers(corners, 0.19, self.camera_Matrix,np.array([]))
+            print(cv_image.shape)
+            tmp = np.array([[-960, -540],[-960, -540],[-960, -540],[-960, -540]])
+
+            print(corners)
+            print(corners + tmp)
+            rvec, tvec, _ = cv2.aruco.estimatePoseSingleMarkers(corners+tmp, length, self.camera_Matrix,np.array([]))
 
             for i in range(rvec.shape[0]):
                 draw_det_marker_img = cv2.aruco.drawAxis(draw_det_marker_img, self.camera_Matrix, np.array([]),
@@ -67,12 +95,18 @@ class Algorithm:
                 
                 
                 code_matrix = self.quat_to_pos_matrix_hm(tvec[0][0][0], tvec[0][0][1], tvec[0][0][2], 0, 0, 0, 1)
-                camera_matrix = self.quat_to_pos_matrix_hm(0, 0, 0, 0.7071068, -0.7071068, 0, 0)
-                # drone_matrix = self.quat_to_pos_matrix_hm(self.state['pose'].pose.position.x, self.state['pose'].pose.position.y, self.state['pose'].pose.position.z, self.state['pose'].pose.orientation.x, self.state['pose'].pose.orientation.y, self.state['pose'].pose.orientation.z, self.state['pose'].pose.orientation.w)
+                camera_matrix = self.quat_to_pos_matrix_hm(0, 0, 0, 0.5, -0.5, 0.5, -0.5)
                 drone_matrix = self.quat_to_pos_matrix_hm(self.state.pose.pose.position.x, self.state.pose.pose.position.y, self.state.pose.pose.position.z, self.state.pose.pose.orientation.x, self.state.pose.pose.orientation.y, self.state.pose.pose.orientation.z, self.state.pose.pose.orientation.w)
                 global_matrix = drone_matrix*camera_matrix*code_matrix
+                print('drone_matrix: ', drone_matrix[0,3], drone_matrix[1,3], drone_matrix[2,3])
+                print('aruco_matrix: ', code_matrix[0,3], code_matrix[1,3], code_matrix[2,3])
+                print('globa matrix: ', global_matrix[0,3], global_matrix[1,3], global_matrix[2,3])
+                point_x = self.state.pose.pose.position.x - tvec[0][0][1]
+                point_y = self.state.pose.pose.position.y - tvec[0][0][0]
+                point_z = -0.2
                 
-                self.points.append([global_matrix[0,3], global_matrix[1,3], global_matrix[2,3]])
+                self.points.append([point_x, point_y, point_z])
+                # self.points.append([global_matrix[0,3], global_matrix[1,3], global_matrix[2,3]])
                 if len(self.points) >= 102:
                     self.points = self.points[1:]
                 if len(self.points) > 100:
@@ -90,6 +124,7 @@ class Algorithm:
                     
                     target_loc = PoseStamped()
                     target_loc.header.stamp = time_received
+                    # target_loc.header.frame = 'aruco'
                     # target_loc.pose.position.x = circle_center[0]
                     # target_loc.pose.position.y = circle_center[1]
                     # target_loc.pose.position.z = circle_center[2]
@@ -98,6 +133,7 @@ class Algorithm:
                     target_loc.pose.position.z = global_matrix[2,3]
                     target_loc.pose.orientation.z = self.degree
                     self.detect_result.publish(target_loc)
+                break
                   
             if self.debug:
                 image_message = self.bridge.cv2_to_imgmsg(draw_det_marker_img, encoding="bgr8")
@@ -140,7 +176,7 @@ if __name__ == "__main__":
 
     main_algorithm = Algorithm()
     rate = rospy.Rate(20)
-    cap = cv2.VideoCapture(6)
+    cap = cv2.VideoCapture(0)
     while not rospy.is_shutdown():
         retval, frame = cap.read()
         if retval:
