@@ -3,10 +3,12 @@
 #include "traj_utils/Bspline.h"
 #include "quadrotor_msgs/PositionCommand.h"
 #include "std_msgs/Empty.h"
+#include "std_msgs/Int32.h"
 #include "visualization_msgs/Marker.h"
 #include <ros/ros.h>
 
 ros::Publisher pos_cmd_pub;
+bool is_pub = false;
 
 quadrotor_msgs::PositionCommand cmd;
 double pos_gain[3] = {0, 0, 0};
@@ -23,6 +25,15 @@ int traj_id_;
 // yaw control
 double last_yaw_, last_yaw_dot_;
 double time_forward_;
+
+void stateCallback(const std_msgs::Int32::ConstPtr& msg) {
+  std::cout<<"state: "<<(*msg).data<<std::endl;
+  std::cout<<"state: "<<msg->data<<std::endl;
+  if(msg->data == 1)
+    is_pub = true;
+  else
+    is_pub = false;
+}
 
 void bsplineCallback(traj_utils::BsplineConstPtr msg)
 {
@@ -227,7 +238,9 @@ void cmdCallback(const ros::TimerEvent &e)
 
   last_yaw_ = cmd.yaw;
 
-  pos_cmd_pub.publish(cmd);
+  if (is_pub)
+    pos_cmd_pub.publish(cmd);
+
 }
 
 int main(int argc, char **argv)
@@ -237,6 +250,7 @@ int main(int argc, char **argv)
   ros::NodeHandle nh("~");
 
   ros::Subscriber bspline_sub = nh.subscribe("planning/bspline", 10, bsplineCallback);
+  ros::Subscriber state_machine_sub = nh.subscribe("/state_machine", 10, stateCallback);
 
   pos_cmd_pub = nh.advertise<quadrotor_msgs::PositionCommand>("/position_cmd", 50);
 

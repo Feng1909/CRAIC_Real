@@ -6,3 +6,4 @@ devel
 .vscode/*
 test.py
 *.bag
+*.active

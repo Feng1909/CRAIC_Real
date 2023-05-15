@@ -37,25 +37,13 @@ class Algorithm:
         self.time_stamp = rospy.Time.now().to_sec()
         self.degree = -100
 
-        self.set_mode_client = rospy.ServiceProxy("mavros/set_mode", SetMode)
-        self.land_set_mode = SetModeRequest()
-        self.land_set_mode.custom_mode = 'AUTO.LAND'
-
-
-        self.arming_client = rospy.ServiceProxy("mavros/cmd/arming", CommandBool)  
-        self.dis_arm_cmd = CommandBoolRequest()
-        self.dis_arm_cmd.value = False
-
-        self.takeoff_land = rospy.Publisher('/px4ctrl/takeoff_land', TakeoffLand)
-
-
         # Subscriber
         pose_sub = rospy.Subscriber('/vins_fusion/imu_propagate', Odometry, self.pose_callback)
 
         # Publisher 
-        self.camera_pub = rospy.Publisher('aruco_det/vis', Image, queue_size=1)
-        self.detect_state_pub = rospy.Publisher('aruco_det/state', Bool, queue_size=1)
-        self.detect_result = rospy.Publisher('aruco_det/target_loc', PoseStamped, queue_size=1)
+        self.camera_pub = rospy.Publisher('/aruco_det/vis', Image, queue_size=1)
+        self.detect_state_pub = rospy.Publisher('/aruco_det/state', Bool, queue_size=1)
+        self.detect_result = rospy.Publisher('/aruco_det/target_loc', PoseStamped, queue_size=1)
     
     def pose_callback(self, msg):
         self.state = msg
@@ -67,14 +55,6 @@ class Algorithm:
         (corners, ids, rejected) = cv2.aruco.detectMarkers(cv_image, self.arucoDict,
             parameters=self.arucoParams)
         if len(corners) > 0:
-            print('detected')
-            if(self.set_mode_client.call(self.land_set_mode).mode_sent == True):
-                rospy.loginfo("land enabled")
-            if(self.arming_client.call(self.dis_arm_cmd).success == True):
-                rospy.loginfo("Vehicle disarmed")
-            land = TakeoffLand()
-            land.takeoff_land_cmd = 2
-            self.takeoff_land.publish(land)
             print('ids: ', ids)
             if ids[0][0] == 19:
                 length = 0.188
@@ -103,13 +83,14 @@ class Algorithm:
                 print('globa matrix: ', global_matrix[0,3], global_matrix[1,3], global_matrix[2,3])
                 point_x = self.state.pose.pose.position.x - tvec[0][0][1]
                 point_y = self.state.pose.pose.position.y - tvec[0][0][0]
-                point_z = -0.2
+                point_z = 0.0
                 
                 self.points.append([point_x, point_y, point_z])
                 # self.points.append([global_matrix[0,3], global_matrix[1,3], global_matrix[2,3]])
                 if len(self.points) >= 102:
                     self.points = self.points[1:]
-                if len(self.points) > 100:
+                # if len(self.points) > 100:
+                if True:
                     radius = 0.7
                     circle_center = self.fit_circle(self.points[::3], radius)
 
@@ -128,9 +109,9 @@ class Algorithm:
                     # target_loc.pose.position.x = circle_center[0]
                     # target_loc.pose.position.y = circle_center[1]
                     # target_loc.pose.position.z = circle_center[2]
-                    target_loc.pose.position.x = global_matrix[0,3]
-                    target_loc.pose.position.y = global_matrix[1,3]
-                    target_loc.pose.position.z = global_matrix[2,3]
+                    target_loc.pose.position.x = point_x
+                    target_loc.pose.position.y = point_y
+                    target_loc.pose.position.z = point_z
                     target_loc.pose.orientation.z = self.degree
                     self.detect_result.publish(target_loc)
                 break
@@ -176,7 +157,7 @@ if __name__ == "__main__":
 
     main_algorithm = Algorithm()
     rate = rospy.Rate(20)
-    cap = cv2.VideoCapture(0)
+    cap = cv2.VideoCapture(6)
     while not rospy.is_shutdown():
         retval, frame = cap.read()
         if retval:

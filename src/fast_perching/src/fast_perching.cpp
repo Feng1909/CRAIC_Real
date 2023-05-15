@@ -32,12 +32,12 @@ void FAST_PERCHING::runAlgorithm() {
 
     // target_p(0) = target.pose.position.x + 0.7 * cos(degree);
     // target_p(1) = target.pose.position.y + 0.7 * sin(degree);
-    // target_p(0) = target.pose.position.x;
-    // target_p(1) = target.pose.position.y;
-    // target_p(2) = target.pose.position.z;
-    target_p(0) = 0.1;
-    target_p(1) = -0.1;
-    target_p(2) = 0.18;
+    target_p(0) = target.pose.position.x;
+    target_p(1) = target.pose.position.y;
+    target_p(2) = target.pose.position.z;
+    // target_p(0) = 0.1;
+    // target_p(1) = -0.1;
+    // target_p(2) = 0.18;
     target_v(0) = 0.0;
     target_v(1) = 0.0;
     target_v(2) = 0.0;
@@ -66,7 +66,7 @@ void FAST_PERCHING::runAlgorithm() {
     std::cout<<"init state: "<<iniState<<std::endl;
     std::cout<<"target p: "<<target_p<<std::endl;
     generate_new_traj_success = trajOptPtr_->generate_traj(iniState, target_p, target_v, land_q, 10, traj);
-    std::cout<<"time duration: "<<traj.getDurations()<<std::endl;
+    // std::cout<<"time duration: "<<traj.getDurations()<<std::endl;
     visPtr_->visualize_traj(traj, "traj");
 
     double select_time = 0.1;

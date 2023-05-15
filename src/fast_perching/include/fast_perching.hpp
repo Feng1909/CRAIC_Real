@@ -14,6 +14,7 @@
 #include <mavros_msgs/SetMode.h>
 #include <mavros_msgs/State.h>
 #include <std_msgs/Bool.h>
+#include <std_msgs/Int32.h>
 #include <Eigen/Core>
 #include <traj_opt/traj_opt.h>
 
