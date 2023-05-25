@@ -13,7 +13,7 @@ import sys
 from scipy.optimize import minimize
 import numpy as np
 import time
-from math import atan2, pi
+from math import atan, pi
 from mavros_msgs.srv import CommandBool, CommandBoolRequest, SetMode, SetModeRequest
 from quadrotor_msgs.msg import TakeoffLand
 
@@ -29,10 +29,17 @@ class Algorithm:
         self.arucoDict = cv2.aruco.Dictionary_get(cv2.aruco.DICT_6X6_50)
         self.arucoParams = cv2.aruco.DetectorParameters_create()
         self.detect = False
-        self.camera_Matrix = np.array([[320.0, 0.0, 320.0],
-                                       [0.0, 320.0, 240.0],
-                                       [0.0, 0.0, 1.0]])
-        
+
+        # self.camera_Matrix = np.array([[320.0, 0.0, 320.0],
+        #                                [0.0, 320.0, 240.0],
+        #                                [0.0, 0.0, 1.0]])
+        self.camera_Matrix = np.array([[404.035450, 0., 329.188263]
+                                       [0.,403.653476, 248.486988,]
+                                       [0., 0., 1. ]])
+        self.distortion_Matrix = np.array([0.043602, -0.064718,
+                                    -0.000313, -0.000471,
+                                    0.])
+
         self.points = []
         self.time_stamp = rospy.Time.now().to_sec()
         self.degree = -100
@@ -50,10 +57,12 @@ class Algorithm:
     
     def camera_callback(self, msg):
         time_received = rospy.Time.now()
-        t_1 = time.time()
         cv_image = msg
         (corners, ids, rejected) = cv2.aruco.detectMarkers(cv_image, self.arucoDict,
             parameters=self.arucoParams)
+        
+        flag = Bool()
+
         if len(corners) > 0:
             print('ids: ', ids)
             if ids[0][0] == 19:
@@ -62,104 +71,48 @@ class Algorithm:
                 length = 0.0186
             self.detect_state_pub.publish(True)
             draw_det_marker_img = cv2.aruco.drawDetectedMarkers(cv_image, corners, ids)
-            print(cv_image.shape)
             tmp = np.array([[-960, -540],[-960, -540],[-960, -540],[-960, -540]])
 
-            print(corners)
-            print(corners + tmp)
-            rvec, tvec, _ = cv2.aruco.estimatePoseSingleMarkers(corners+tmp, length, self.camera_Matrix,np.array([]))
+            # rvec, tvec, _ = cv2.aruco.estimatePoseSingleMarkers(corners+tmp, length, self.camera_Matrix,np.array([]))
+            rvec, tvec, _ = cv2.aruco.estimatePoseSingleMarkers(corners, length, self.camera_Matrix, self.distortion_Matrix)
 
             for i in range(rvec.shape[0]):
-                draw_det_marker_img = cv2.aruco.drawAxis(draw_det_marker_img, self.camera_Matrix, np.array([]),
+                draw_det_marker_img = cv2.aruco.drawAxis(draw_det_marker_img, self.camera_Matrix, self.distortion_Matrix,
                                                          rvec[i, :, :], tvec[i, :, :], 0.03)
                 
-                
-                code_matrix = self.quat_to_pos_matrix_hm(tvec[0][0][0], tvec[0][0][1], tvec[0][0][2], 0, 0, 0, 1)
-                camera_matrix = self.quat_to_pos_matrix_hm(0, 0, 0, 0.5, -0.5, 0.5, -0.5)
-                drone_matrix = self.quat_to_pos_matrix_hm(self.state.pose.pose.position.x, self.state.pose.pose.position.y, self.state.pose.pose.position.z, self.state.pose.pose.orientation.x, self.state.pose.pose.orientation.y, self.state.pose.pose.orientation.z, self.state.pose.pose.orientation.w)
-                global_matrix = drone_matrix*camera_matrix*code_matrix
-                print('drone_matrix: ', drone_matrix[0,3], drone_matrix[1,3], drone_matrix[2,3])
-                print('aruco_matrix: ', code_matrix[0,3], code_matrix[1,3], code_matrix[2,3])
-                print('globa matrix: ', global_matrix[0,3], global_matrix[1,3], global_matrix[2,3])
-                point_x = self.state.pose.pose.position.x - tvec[0][0][1]
-                point_y = self.state.pose.pose.position.y - tvec[0][0][0]
-                point_z = 0.0
-                
-                self.points.append([point_x, point_y, point_z])
-                # self.points.append([global_matrix[0,3], global_matrix[1,3], global_matrix[2,3]])
-                if len(self.points) >= 102:
-                    self.points = self.points[1:]
-                # if len(self.points) > 100:
-                if True:
-                    radius = 0.7
-                    circle_center = self.fit_circle(self.points[::3], radius)
+                target_loc = PoseStamped()
+                target_loc.header.stamp = time_received
+                target_loc.pose.position.x = tvec[0][0][1]
+                target_loc.pose.position.y = tvec[0][0][2]
+                target_loc.pose.position.z = tvec[0][0][3]
+                # target_loc.pose.orientation.z = self.degree
 
-                    self.degree = atan2(global_matrix[1,3]-circle_center[1], global_matrix[0,3]-circle_center[0]) \
-                                    + (time.time()-t_1)*0.7
-                    if self.degree > pi:
-                        self.degree -= 2*pi
-                    if self.degree < -pi:
-                        self.degree += 2*pi
-                    
-                    self.time_stamp = rospy.Time.now().to_sec()
-                    
-                    target_loc = PoseStamped()
-                    target_loc.header.stamp = time_received
-                    # target_loc.header.frame = 'aruco'
-                    # target_loc.pose.position.x = circle_center[0]
-                    # target_loc.pose.position.y = circle_center[1]
-                    # target_loc.pose.position.z = circle_center[2]
-                    target_loc.pose.position.x = point_x
-                    target_loc.pose.position.y = point_y
-                    target_loc.pose.position.z = point_z
-                    target_loc.pose.orientation.z = self.degree
-                    self.detect_result.publish(target_loc)
+                # pose_now.sight_angle[0] = atan(tvecs[i][0] / tvecs[i][2]);
+                # pose_now.sight_angle[1] = atan(tvecs[i][1] / tvecs[i][2]);
+
+                target_loc.pose.orientation.x = atan(tvec[0][0][0] / tvec[0][0][2])
+                target_loc.pose.orientation.y = atan(tvec[0][0][1] / tvec[0][0][2])
+
+                self.detect_result.publish(target_loc)
+
+                flag.data = True
+                self.detect_state_pub.publish(flag)
+
                 break
-                  
-            if self.debug:
-                image_message = self.bridge.cv2_to_imgmsg(draw_det_marker_img, encoding="bgr8")
-                self.camera_pub.publish(image_message)
-
+            
         else:
-            self.detect_state_pub.publish(False)
-    
-    def error_function(self, params, points, radius):
-        a, b, c = params
-        error = 0
-        for point in points:
-            x, y, z = point
-            error += ((x - a)**2 + (y - b)**2 + (z - c)**2 - radius**2)**2
-        return error
-
-    def fit_circle(self, points, radius):
-        initial_guess = np.array([0,8,0.5])
-        result = minimize(self.error_function, initial_guess, args=(points, radius))
-        return result.x  # 返回最优解
-
-    def quat_to_pos_matrix_hm(self, p_x, p_y, p_z, x, y, z, w):
-        # 创建位姿矩阵，写入位置
-        T = np.matrix([[0, 0, 0, p_x], [0, 0, 0, p_y], [0, 0, 0, p_z], [0, 0, 0, 1]])
-        T[0, 0] = 1 - 2 * pow(y, 2) - 2 * pow(z, 2)
-        T[0, 1] = 2 * (x * y - w * z)
-        T[0, 2] = 2 * (x * z + w * y)
-
-        T[1, 0] = 2 * (x * y + w * z)
-        T[1, 1] = 1 - 2 * pow(x, 2) - 2 * pow(z, 2)
-        T[1, 2] = 2 * (y * z - w * x)
-
-        T[2, 0] = 2 * (x * z - w * y)
-        T[2, 1] = 2 * (y * z + w * x)
-        T[2, 2] = 1 - 2 * pow(x, 2) - 2 * pow(y, 2)
-        return T
+            flag.data = False
+            self.detect_state_pub.publish(flag)
 
 
 if __name__ == "__main__":
 
     main_algorithm = Algorithm()
     rate = rospy.Rate(20)
-    cap = cv2.VideoCapture(6)
+    cap = cv2.VideoCapture(0)
     while not rospy.is_shutdown():
         retval, frame = cap.read()
+        main_algorithm.camera_callback(frame)
         if retval:
             # print(retval)
             # cv2.imshow('Live', frame)

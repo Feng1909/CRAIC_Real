@@ -7,3 +7,4 @@ devel
 test.py
 *.bag
 *.active
+old/

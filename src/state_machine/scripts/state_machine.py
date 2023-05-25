@@ -28,7 +28,6 @@ class Algorithm:
         # 0: take off
         # 1: ego planner
         # 2: fast perching
-        # 3: land and disarm
 
         self.aruco_detected = False
         self.ego_planner = run_ego_planner()
@@ -47,7 +46,7 @@ class Algorithm:
 
         # Subscriber
         pose_sub = rospy.Subscriber('/vins_fusion/imu_propagate', Odometry, self.pose_callback)
-        target_sub = rospy.Subscriber('/aruco_det/target_loc', PoseStamped, self.target_callback)
+        target_sub = rospy.Subscriber('/aruco_det/state', Bool, self.target_callback)
 # rostopic pub -1  /px4ctrl/takeoff_land quadrotor_msgs/TakeoffLand "takeoff_land_cmd: 1"
         # Publisher 
         self.state_machin_pub = rospy.Publisher('/state_machine', Int32, queue_size=1)
@@ -65,25 +64,26 @@ class Algorithm:
                 return
         
         if self.state_machine.data == 1 and self.aruco_detected == True:
-            # self.state_machine.data = 2
-            print('launch fast perching')
+            self.state_machine.data = 2
+            print('launch landing')
             return
         
-        if (self.state_machine.data == 2 and self.state.pose.pose.position.z <= 0.6) or self.state_machine.data == 3:
-            print('landing')
-            self.state_machine.data = 3
-            if(self.set_mode_client.call(self.land_set_mode).mode_sent == True):
-                rospy.loginfo("land enabled")
-            if(self.arming_client.call(self.dis_arm_cmd).success == True):
-                rospy.loginfo("Vehicle disarmed")
-            land = TakeoffLand()
-            land.takeoff_land_cmd = 2
-            self.takeoff_land.publish(land)
-            return
+        # if (self.state_machine.data == 2 and self.state.pose.pose.position.z <= 0.6) or self.state_machine.data == 3:
+        #     print('landing')
+        #     self.state_machine.data = 3
+        #     if(self.set_mode_client.call(self.land_set_mode).mode_sent == True):
+        #         rospy.loginfo("land enabled")
+        #     if(self.arming_client.call(self.dis_arm_cmd).success == True):
+        #         rospy.loginfo("Vehicle disarmed")
+        #     land = TakeoffLand()
+        #     land.takeoff_land_cmd = 2
+        #     self.takeoff_land.publish(land)
+        #     return
     
     def target_callback(self, msg):
-        print('aruco detected')
-        self.aruco_detected = True
+        if msg.data == True:
+            print('aruco detected')
+            self.aruco_detected = True
 
     def send_msgs(self):
         self.state_machin_pub.publish(self.state_machine.data)
