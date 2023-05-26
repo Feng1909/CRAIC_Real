@@ -1,0 +1,25 @@
+<launch>
+
+    <!-- 启动二维码检测算法 -->
+    <node pkg="offboard_pkg" type="aruco_det" name="aruco_det" output="screen">
+		<!-- 相机话题 -->
+        <param name="camera_topic" type="string" value="/usb_cam/image_raw" />
+		<!-- 相机参数 -->
+        <param name="camera_parameters" type="string" value="$(find offboard_pkg)/config/gimbal_camera.yaml" />
+		<!-- 输出话题1 -->
+        <param name="output_pose_topic" type="string" value="/drone/object_detection/aruco_det" />
+		<!-- 输出话题2 -->
+        <param name="output_multi_pose_topic" type="string" value="/drone/object_detection/multi_aruco_det" />
+		<!-- 输出图像话题 -->
+        <param name="output_image_topic" type="string" value="/drone/camera/rgb/image_aruco_det" />
+		<!-- 10号字典 -->
+        <param name="dictionary_type" type="int" value="10" />
+		<!-- 指定识别x号marker -->
+        <param name="binding_id" type="int" value="19" />
+		<!-- marker边长 10:8 -->
+        <param name="target_marker_length" type="double" value="0.15" />
+    </node>
+
+
+</launch>
+

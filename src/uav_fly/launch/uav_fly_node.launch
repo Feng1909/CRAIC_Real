@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<launch>
+
+    <node pkg="fly_demo"
+          name="fly_demo_node"
+          type="fly_demo_node"
+          output="screen"
+          required="true"
+    >
+    </node>
+
+</launch>

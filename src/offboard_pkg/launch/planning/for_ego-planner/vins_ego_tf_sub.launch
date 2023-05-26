@@ -1,0 +1,8 @@
+<launch>
+<node pkg="tf" type="static_transform_publisher" name="camera_link_to_base_link"
+        args="0 0 0 0 0 0 /base_link /t265_link 1" />   
+ <!-- 飞基于t265的ego的时候，起的rs_d400_and_t265.launch里面已经启动t265_to_d400节点发布相应tf，这里不需要再发布，故注释掉，飞基于vins的ego的时候需要用 -->
+ <node pkg="tf" type="static_transform_publisher" name="t265_to_d400" args="0 0 0 0 0 0 /t265_link /camera_link 100"/>
+ <node pkg="tf" type="static_transform_publisher" name="world_to_map" args="0 0 0 0 0 0 /world /map 100"/>
+</launch>
+

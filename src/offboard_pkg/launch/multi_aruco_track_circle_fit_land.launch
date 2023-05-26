@@ -1,0 +1,14 @@
+<launch>
+	
+   <node pkg="offboard_pkg" type="multi_aruco_track_circle_fit_land" name="multi_aruco_track_circle_fit_land" output="screen">
+
+   <!-- 小车圆轨迹方程可以写为x_=x+r*sin((a*t+b)，y_=y+r*cos((a*t+b) ，其中x y是圆心的local系坐标，r是圆半径，本次中国机器人与人工智能大赛中小车绕圆半径r是0.5，a和绕圆速度相关，如果小车速度是v，a=2pai/T=2pai/(2pai*r/v)，如小车速度如果是0.1m/s左右，则a应该是在0.2左右，b是相位，这里基于实际情况选择x y b作为ceres优化变量，需要首先要给优化变量赋初值，不要和实际偏差太大，否则不好收敛，所以需要给x y b赋予优化初值，x y根据小车绕圆圆心大体的local位置给一个初值，不要偏差太大，经过ceres优化可以收敛得到一个较为精确的圆心位置，相位b的优化初值可以就给0，一般可以优化出一个较为准确的相位值，同时a也可以根据小车实际速度算出对应的值并填入 -->
+
+   <param name="x"    value="1.5"/>
+   <param name="y"    value="0"/>
+   <param name="a"    value="0.2"/>
+   <param name="b"    value="0"/>
+
+   </node>
+</launch>
+

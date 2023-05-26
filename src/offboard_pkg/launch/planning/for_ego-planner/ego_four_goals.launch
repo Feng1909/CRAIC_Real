@@ -1,0 +1,28 @@
+<launch>
+	
+   <node pkg="offboard_pkg" type="ego_four_goals" name="ego_four_goals" output="screen">
+
+   <param name="takeoff_height"     value="0.3"/>
+   <!-- 修改目标点位置 -->
+
+   <param name="goal1_x"     value="0.5"/>
+   <param name="goal1_y"     value="0"/>
+   <param name="goal1_z"     value="0.3"/>
+
+   <param name="goal2_x"     value="1"/>
+   <param name="goal2_y"     value="-0.5"/>
+   <param name="goal2_z"     value="0.3"/>
+
+   <param name="goal3_x"     value="1"/>
+   <param name="goal3_y"     value="-1"/>
+   <param name="goal3_z"     value="0.3"/>
+
+   <param name="goal4_x"     value="1"/>
+   <param name="goal4_y"     value="-1.5"/>
+   <param name="goal4_z"     value="0.3"/>
+
+   </node>
+</launch>
+
+
+

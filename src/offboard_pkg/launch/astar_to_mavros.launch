@@ -1,0 +1,12 @@
+<launch>
+	
+   <node pkg="offboard_pkg" type="astar_to_mavros" name="astar_to_mavros" output="screen">
+
+   <param name="height"     value="2"/>
+   <param name="auto_takeoff"   type="bool"  value="true"/>
+
+   </node>
+</launch>
+
+
+

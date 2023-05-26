@@ -1,0 +1,13 @@
+<launch>
+	
+   <node pkg="offboard_pkg" type="yaw_change_circle_track" name="yaw_change_circle_track" output="screen">
+
+   <param name="yaw_rate_P"   value="0.50"/>
+   <param name="roll_rate_P"   value="1"/>
+   <param name="pitch_rate_P"   value="1"/>
+   <param name="thrust"   value="0.5"/>
+   <param name="if_simulation"   type="bool"  value="false"/>
+
+   </node>
+</launch>
+

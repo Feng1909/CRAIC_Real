@@ -33,8 +33,8 @@ class Algorithm:
         # self.camera_Matrix = np.array([[320.0, 0.0, 320.0],
         #                                [0.0, 320.0, 240.0],
         #                                [0.0, 0.0, 1.0]])
-        self.camera_Matrix = np.array([[404.035450, 0., 329.188263]
-                                       [0.,403.653476, 248.486988,]
+        self.camera_Matrix = np.array([[404.035450, 0., 329.188263],
+                                       [0.,403.653476, 248.486988,],
                                        [0., 0., 1. ]])
         self.distortion_Matrix = np.array([0.043602, -0.064718,
                                     -0.000313, -0.000471,
@@ -66,9 +66,9 @@ class Algorithm:
         if len(corners) > 0:
             print('ids: ', ids)
             if ids[0][0] == 19:
-                length = 0.188
+                length = 0.14
             else:
-                length = 0.0186
+                length = 0.018
             self.detect_state_pub.publish(True)
             draw_det_marker_img = cv2.aruco.drawDetectedMarkers(cv_image, corners, ids)
             tmp = np.array([[-960, -540],[-960, -540],[-960, -540],[-960, -540]])
@@ -82,9 +82,12 @@ class Algorithm:
                 
                 target_loc = PoseStamped()
                 target_loc.header.stamp = time_received
-                target_loc.pose.position.x = tvec[0][0][1]
-                target_loc.pose.position.y = tvec[0][0][2]
-                target_loc.pose.position.z = tvec[0][0][3]
+                # print(tvec)
+                # print(tvec[0])
+                # print(tvec[0][0])
+                target_loc.pose.position.x = tvec[0][0][0]
+                target_loc.pose.position.y = tvec[0][0][1]
+                target_loc.pose.position.z = tvec[0][0][2]
                 # target_loc.pose.orientation.z = self.degree
 
                 # pose_now.sight_angle[0] = atan(tvecs[i][0] / tvecs[i][2]);

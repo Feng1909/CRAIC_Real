@@ -1,0 +1,8 @@
+<launch>
+    <!-- 二维码降落板检测 -->
+    <!-- 启动检测 -->
+    <node pkg="offboard_pkg" type="multi_aruco_det" name="multi_aruco_det" output="screen">
+        <param name="camera_topic" type="string" value="/rflysim/sensor1/img_rgb" />
+        <param name="camera_info" type="string" value="$(find offboard_pkg)/config/rflysim_camera.yaml" />
+    </node>
+</launch>

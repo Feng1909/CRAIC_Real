@@ -1,0 +1,349 @@
+num: 87
+point1:
+  x: 0
+  y: 0
+  z: 0
+point2:
+  x: 0.2
+  y: 0
+  z: 0
+point3:
+  x: 0.4
+  y: 0
+  z: 0
+point4:
+  x: 0.6
+  y: 0
+  z: 0
+point5:
+  x: 0.8
+  y: 0
+  z: 0
+point6:
+  x: 1.0
+  y: 0
+  z: 0
+point7:
+  x: 1.2
+  y: 0
+  z: 0
+point8:
+  x: 1.4
+  y: 0
+  z: 0
+point9:
+  x: 1.6
+  y: 0
+  z: 0
+point10:
+  x: 1.8
+  y: 0
+  z: 0
+point11:
+  x: 2.0
+  y: 0
+  z: 0
+point12:
+  x: 2.2
+  y: 0
+  z: 0
+point13:
+  x: 2.4
+  y: 0
+  z: 0
+point14:
+  x: 2.6
+  y: 0
+  z: 0
+point15:
+  x: 2.75
+  y: 0
+  z: 0
+point16:
+  x: 2.75
+  y: 0
+  z: 0
+point17:
+  x: 2.75
+  y: -0.2
+  z: 0
+point18:
+  x: 2.75
+  y: -0.4
+  z: 0
+point19:
+  x: 2.75
+  y: -0.6
+  z: 0
+point20:
+  x: 2.75
+  y: -0.8
+  z: 0
+point21:
+  x: 2.75
+  y: -1.0
+  z: 0
+point22:
+  x: 2.75
+  y: -1.2
+  z: 0
+point23:
+  x: 2.75
+  y: -1.4
+  z: 0
+point24:
+  x: 2.75
+  y: -1.6
+  z: 0
+point25:
+  x: 2.75
+  y: -1.8
+  z: 0
+point26:
+  x: 2.75
+  y: -2.0
+  z: 0
+point27:
+  x: 2.75
+  y: -2.2
+  z: 0
+point28:
+  x: 2.75
+  y: -2.4
+  z: 0
+point29:
+  x: 2.75
+  y: -2.5
+  z: 0
+point30:
+  x: 2.55
+  y: -2.5
+  z: 0
+point31:
+  x: 2.4
+  y: -2.5
+  z: 0
+point32:
+  x: 2.2
+  y: -2.5
+  z: 0
+point33:
+  x: 2.0
+  y: -2.5
+  z: 0
+point34:
+  x: 2.0
+  y: -2.7
+  z: 0
+point35:
+  x: 2.0
+  y: -2.9
+  z: 0
+point36:
+  x: 2.0
+  y: -3.1
+  z: 0
+point37:
+  x: 2.0
+  y: -3.3
+  z: 0
+point38:
+  x: 2.0
+  y: -3.5
+  z: 0
+point39:
+  x: 2.0
+  y: -3.7
+  z: 0
+point40:
+  x: 2.0
+  y: -3.9
+  z: 0
+point41:
+  x: 2.0
+  y: -4.1
+  z: 0
+point42:
+  x: 2.0
+  y: -4.3
+  z: 0
+point43:
+  x: 2.0
+  y: -4.5
+  z: 0
+point44:
+  x: 2.0
+  y: -4.7
+  z: 0
+point45:
+  x: 2.0
+  y: -4.9
+  z: 0
+point46:
+  x: 2.0
+  y: -5.1
+  z: 0
+point47:
+  x: 2.0
+  y: -5.25
+  z: 0
+point48:
+  x: 1.8
+  y: -5.25
+  z: 0
+point49:
+  x: 1.6
+  y: -5.25
+  z: 0
+point50:
+  x: 1.4
+  y: -5.25
+  z: 0
+point51:
+  x: 1.2
+  y: -5.25
+  z: 0
+point52:
+  x: 1.0
+  y: -5.25
+  z: 0
+point53:
+  x: 0.8
+  y: -5.25
+  z: 0
+point54:
+  x: 0.6
+  y: -5.25
+  z: 0
+point55:
+  x: 0.4
+  y: -5.25
+  z: 0
+point56:
+  x: 0.25
+  y: -5.25
+  z: 0
+point57:
+  x: 0.25
+  y: -5.4
+  z: 0
+point58:
+  x: 0.25
+  y: -5.6
+  z: 0
+point59:
+  x: 0.25
+  y: -5.8
+  z: 0
+point60:
+  x: 0.25
+  y: -6.0
+  z: 0
+point61:
+  x: 0.25
+  y: -6.2
+  z: 0
+point62:
+  x: 0.25
+  y: -6.4
+  z: 0
+point63:
+  x: 0.25
+  y: -6.6
+  z: 0
+point64:
+  x: 0.25
+  y: -6.8
+  z: 0
+point65:
+  x: 0.25
+  y: -7.0
+  z: 0
+point66:
+  x: 0.25
+  y: -7.2
+  z: 0
+point67:
+  x: 0.25
+  y: -7.4
+  z: 0
+point68:
+  x: 0.25
+  y: -7.6
+  z: 0
+point69:
+  x: 0.25
+  y: -7.8
+  z: 0
+point70:
+  x: 0.25
+  y: -8.0
+  z: 0
+point71:
+  x: 0.25
+  y: -8.2
+  z: 0
+point72:
+  x: 0.25
+  y: -8.325
+  z: 0
+point73:
+  x: 0.4
+  y: -8.325
+  z: 0
+point74:
+  x: 0.6
+  y: -8.325
+  z: 0
+point75:
+  x: 0.8
+  y: -8.325
+  z: 0
+point76:
+  x: 1.0
+  y: -8.325
+  z: 0
+point77:
+  x: 1.2
+  y: -8.325
+  z: 0
+point78:
+  x: 1.4
+  y: -8.325
+  z: 0
+point79:
+  x: 1.6
+  y: -8.325
+  z: 0
+point80:
+  x: 1.8
+  y: -8.325
+  z: 0
+point81:
+  x: 2.0
+  y: -8.325
+  z: 0
+point82:
+  x: 2.2
+  y: -8.325
+  z: 0
+point83:
+  x: 2.4
+  y: -8.325
+  z: 0
+point84:
+  x: 2.6
+  y: -8.325
+  z: 0
+point85:
+  x: 2.8
+  y: -8.325
+  z: 0
+point86:
+  x: 3.0
+  y: -8.325
+  z: 0
+point87:
+  x: 3.0
+  y: -8.0
+  z: 0

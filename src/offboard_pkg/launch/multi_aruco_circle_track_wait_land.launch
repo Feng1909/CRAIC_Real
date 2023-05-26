@@ -1,0 +1,11 @@
+<launch>
+	
+   <node pkg="offboard_pkg" type="multi_aruco_circle_track_wait_land" name="multi_aruco_circle_track_wait_land" output="screen">
+
+   <!-- 小车绕圆一个周期的时间，单位为秒 -->
+   <param name="Tras"    value="32.9"/>
+
+   </node>
+</launch>
+
+
